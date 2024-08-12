@@ -12,6 +12,7 @@ final class WeatherViewModel {
 
     // MARK: - Properties
 
+    private let weatherServiceType: WeatherServiceType
     private let coordinator: MainCoordinator
     private let cityModel: CityModel
     private let output: PassthroughSubject<Output, Never> = .init()
@@ -20,9 +21,11 @@ final class WeatherViewModel {
     // MARK: - Initialization
 
     init(
+        weatherServiceType: WeatherServiceType = WeatherService(),
         coordinator: MainCoordinator,
         cityModel: CityModel
     ) {
+        self.weatherServiceType = weatherServiceType
         self.coordinator = coordinator
         self.cityModel = cityModel
     }
@@ -30,15 +33,37 @@ final class WeatherViewModel {
 
 extension WeatherViewModel: ViewModelType {
 
-    struct Input { }
+    enum Input {
+        case viewDidAppear
+    }
 
-    struct Output {
+    enum Output {
+        case fetchWeatherDidSucceed(weather: WeatherModel)
+        case handleCity(city: CityModel)
     }
 
     func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
-        input.sink { event in
-            
+        input.sink { [weak self] event in
+            switch event {
+            case .viewDidAppear:
+                self?.handleWeather()
+                self?.handleCity()
+            }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
+    }
+    
+    private func handleWeather() {
+        weatherServiceType.getWeather(for: cityModel.cityKey).sink { completion in
+            if case .failure(let error) = completion {
+                print(error)
+            }
+        } receiveValue: { [weak self] weather in
+            self?.output.send(.fetchWeatherDidSucceed(weather: weather))
+        }.store(in: &cancellables)
+    }
+    
+    private func handleCity() {
+        output.send(.handleCity(city: cityModel)) 
     }
 }

@@ -22,6 +22,6 @@ final class CityTableViewCell: UITableViewCell {
     }
 
     func fill(_ city: CityModel) {
-        titleLabel.text = city.localizedName
+        titleLabel.text = "\(city.localizedName), \(city.country.localizedName)"
     }
 }

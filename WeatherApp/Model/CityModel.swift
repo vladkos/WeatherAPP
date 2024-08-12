@@ -7,11 +7,21 @@
 
 import Foundation
 
-struct CityModel {
+struct CityModel: Decodable {
     let localizedName: String
+    let cityKey: String
+    let country: CountryModel
+
+    private enum CodingKeys: String, CodingKey {
+        case localizedName = "LocalizedName"
+        case cityKey = "Key"
+        case country = "Country"
+    }
 }
 
-extension CityModel: Codable {
+struct CountryModel: Decodable {
+    let localizedName: String
+    
     private enum CodingKeys: String, CodingKey {
         case localizedName = "LocalizedName"
     }
