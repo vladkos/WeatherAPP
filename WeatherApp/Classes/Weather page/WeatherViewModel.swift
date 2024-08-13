@@ -16,7 +16,7 @@ final class WeatherViewModel {
     private let twelveHoursForecastType: TwelveHoursForecastType
     private let currentConditionsType: CurrentConditionsType
     private let coordinator: MainCoordinator
-    private let cityModel: CityModel
+    private let locationModel: LocationModel
     private let output: PassthroughSubject<Output, Never> = .init()
     private let setUserDefaults: (Any, String) -> ()
     private let getBoolValueFromUserDefaults: (String) -> (Bool)
@@ -32,7 +32,7 @@ final class WeatherViewModel {
         twelveHoursForecastType: TwelveHoursForecastType = TwelveHoursForecastService(),
         currentConditionsType: CurrentConditionsType = CurrentConditionsService(),
         coordinator: MainCoordinator,
-        cityModel: CityModel,
+        locationModel: LocationModel,
         setUserDefaults: @escaping (Any, String) -> () = UserDefaults.standard.set,
         getBoolValueFromUserDefaults: @escaping (String) -> (Bool) = UserDefaults.standard.bool
     ) {
@@ -40,7 +40,7 @@ final class WeatherViewModel {
         self.twelveHoursForecastType = twelveHoursForecastType
         self.currentConditionsType = currentConditionsType
         self.coordinator = coordinator
-        self.cityModel = cityModel
+        self.locationModel = locationModel
         self.setUserDefaults = setUserDefaults
         self.getBoolValueFromUserDefaults = getBoolValueFromUserDefaults
     }
@@ -57,7 +57,7 @@ extension WeatherViewModel: ViewModelType {
         case outputMinMaxTemperature(_ minMax: String)
         case outputWeatherDescription(_ description: String)
         case outputCurrentTemperature(_ currentTemperature: String, color: UIColor)
-        case handleCity(city: CityModel)
+        case handleLocation(location: LocationModel)
         case outputMetric(_ metric: Bool)
         case outputTwelveHoursForecast(_ weather: [TwelveHoursForecastModel])
     }
@@ -69,7 +69,7 @@ extension WeatherViewModel: ViewModelType {
                 self?.handleOneDayForecast()
                 self?.handleTwelveHoursForecast()
                 self?.handleCurrentConditions()
-                self?.handleCity()
+                self?.handleLocation()
                 self?.output.send(.outputMetric(self?.currentMetric() ?? false))
             case .metricDidChange(let metric):
                 self?.setIsMetric(metric)
@@ -81,20 +81,20 @@ extension WeatherViewModel: ViewModelType {
     }
     
     private func handleOneDayForecast() {
-        oneDayForecastType.getWeather(for: cityModel.cityKey, metric: currentMetric()).sink { completion in
+        oneDayForecastType.getWeather(for: locationModel.cityKey, metric: currentMetric()).sink { completion in
             if case .failure(let error) = completion {
                 print(error)
             }
         } receiveValue: { [weak self] weather in
             guard let self else { return }
             let metric: CurrentConditionsModel.Temperature.Details.UnitType = self.currentMetric() ? .celsius : .fahrenheit
-            let minMax = "\(weather.minTemperature)\(metric.rawValue) - \( weather.maxTemperature)\(metric.rawValue)"
+            let minMax = "\(weather.minTemperature)\(metric.value) - \( weather.maxTemperature)\(metric.value)"
             self.output.send(.outputMinMaxTemperature(minMax))
         }.store(in: &cancellables)
     }
     
     private func handleTwelveHoursForecast() {
-        twelveHoursForecastType.getWeather(for: cityModel.cityKey, metric: currentMetric()).sink { completion in
+        twelveHoursForecastType.getWeather(for: locationModel.cityKey, metric: currentMetric()).sink { completion in
             if case .failure(let error) = completion {
                 print(error)
             }
@@ -105,7 +105,7 @@ extension WeatherViewModel: ViewModelType {
     }
     
     private func handleCurrentConditions() {
-        currentConditionsType.getCurrentWeather(for: cityModel.cityKey).sink { completion in
+        currentConditionsType.getCurrentWeather(for: locationModel.cityKey).sink { completion in
             if case .failure(let error) = completion {
                 print(error)
             }
@@ -137,8 +137,8 @@ extension WeatherViewModel: ViewModelType {
         ))
     }
     
-    private func handleCity() {
-        output.send(.handleCity(city: cityModel)) 
+    private func handleLocation() {
+        output.send(.handleLocation(location: locationModel)) 
     }
     
     private func setIsMetric(_ value: Bool) {

@@ -1,14 +1,14 @@
 //
-//  OneDayForecastService.swift
+//  LocationsService.swift
 //  WeatherApp
 //
-//  Created by Vlad Kostenko on 10/08/2024.
+//  Created by Vlad Kostenko on 09/08/2024.
 //
 
 import Foundation
 import Combine
 
-final class OneDayForecastService: OneDayForecastType {
+final class LocationsService: LocationsServiceType {
     private let apiKey: String
     private let baseUrl: String
     
@@ -20,12 +20,11 @@ final class OneDayForecastService: OneDayForecastType {
         self.baseUrl = baseUrl
     }
     
-    func getWeather(for cityKey: String, metric: Bool) -> AnyPublisher<WeatherModel, Error> {
-        let url = "\(baseUrl)/forecasts/v1/daily/1day/\(cityKey)"
+    func getLocations(_ q: String) -> AnyPublisher<[LocationModel], Error> {
+        let url = "\(baseUrl)/locations/v1/cities/autocomplete"
         let queryItems = [
             URLQueryItem(name: "apikey", value: apiKey),
-            URLQueryItem(name: "details", value: "true"),
-            URLQueryItem(name: "metric", value: metric.description)
+            URLQueryItem(name: "q", value: q)
         ]
         var urlComps = URLComponents(string: url)!
         urlComps.queryItems = queryItems
@@ -35,7 +34,7 @@ final class OneDayForecastService: OneDayForecastType {
             .catch { error in
                 return Fail(error: error).eraseToAnyPublisher()
             }.map({ $0.data })
-            .decode(type: WeatherModel.self, decoder: JSONDecoder())
+            .decode(type: [LocationModel].self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
     }
 }

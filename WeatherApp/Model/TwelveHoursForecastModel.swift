@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TwelveHoursForecastModel: Codable {
+struct TwelveHoursForecastModel: Decodable {
     let temperature: Temperature
     let epochDateTime: Int
     
@@ -21,7 +21,7 @@ struct TwelveHoursForecastModel: Codable {
     }
     
     // MARK: - Temperature
-    struct Temperature: Codable {
+    struct Temperature: Decodable {
         let value: Double
         let unit: String
         

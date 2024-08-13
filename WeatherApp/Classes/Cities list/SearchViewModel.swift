@@ -8,49 +8,57 @@
 import Foundation
 import Combine
 
-final class SearchViewModel: ViewModelType {
+protocol SearchViewModelProtocol {
+    func title() -> String
+}
+
+final class SearchViewModel: ViewModelType, SearchViewModelProtocol {
     
     enum Input {
-        case didSearchCity(_ text: String)
-        case didSelectCity(_ city: CityModel)
+        case didSearchLocation(_ text: String)
+        case didSelectLocation(_ locatoin: LocationModel)
     }
     
     enum Output {
-        case fetchCitiesDidSucceed(cities: [CityModel])
+        case fetchLocationsDidSucceed(locations: [LocationModel])
     }
     
     private let coordinator: MainCoordinator
-    private let citiesServiceType: CitiesServiceType
+    private let locationsServiceType: LocationsServiceType
     private let output: PassthroughSubject<Output, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     
     init(
-        citiesServiceType: CitiesServiceType = CitiesService(),
+        locationsServiceType: LocationsServiceType = LocationsService(),
         coordinator: MainCoordinator
     ) {
-        self.citiesServiceType = citiesServiceType
+        self.locationsServiceType = locationsServiceType
         self.coordinator = coordinator
     }
     
     func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
         input.sink { [weak self] event in
             switch event {
-            case .didSearchCity(let text):
-                self?.handleGetCities(by: text)
-            case .didSelectCity(let city):
-                self?.coordinator.toDetails(city)
+            case .didSearchLocation(let text):
+                self?.handleGetLocations(by: text)
+            case .didSelectLocation(let location):
+                self?.coordinator.toDetails(location)
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
     }
     
-    private func handleGetCities(by q: String) {
-        citiesServiceType.getCities(q).sink { [weak self] completion in
+    func title() -> String {
+        "Locations"
+    }
+    
+    private func handleGetLocations(by q: String) {
+        locationsServiceType.getLocations(q).sink { [weak self] completion in
             if case .failure = completion {
-                self?.output.send(.fetchCitiesDidSucceed(cities: []))
+                self?.output.send(.fetchLocationsDidSucceed(locations: []))
             }
-        } receiveValue: { [weak self] cities in
-            self?.output.send(.fetchCitiesDidSucceed(cities: cities))
+        } receiveValue: { [weak self] locations in
+            self?.output.send(.fetchLocationsDidSucceed(locations: locations))
         }.store(in: &cancellables)
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CurrentConditionsModel: Codable {
+struct CurrentConditionsModel: Decodable {
     let weatherText: String
     let temperature: Temperature
     
@@ -17,7 +17,7 @@ struct CurrentConditionsModel: Codable {
     
     func currentTemperature(metric: Bool) -> String {
         let metricValue: Temperature.Details.UnitType = metric ? .celsius : .fahrenheit
-        return currentTemperatureValue(metric: metric).description + metricValue.rawValue
+        return currentTemperatureValue(metric: metric).description + metricValue.value
     }
     
     private enum CodingKeys: String, CodingKey {
@@ -25,7 +25,7 @@ struct CurrentConditionsModel: Codable {
         case temperature = "Temperature"
     }
     
-    struct Temperature: Codable {
+    struct Temperature: Decodable {
         let metric: Details
         let imperial: Details
         
@@ -34,19 +34,27 @@ struct CurrentConditionsModel: Codable {
             case imperial = "Imperial"
         }
         
-        struct Details: Codable {
+        struct Details: Decodable {
             let value: Double
             let unit: UnitType
-            
             
             private enum CodingKeys: String, CodingKey {
                 case value = "Value"
                 case unit = "Unit"
             }
             
-            enum UnitType: String, Codable {
+            enum UnitType: String, Decodable {
                 case fahrenheit = "F"
                 case celsius = "C"
+                
+                var value: String {
+                    switch self {
+                    case .fahrenheit:
+                        return "℉"
+                    case .celsius:
+                        return "℃"
+                    }
+                }
             }
         }
     }

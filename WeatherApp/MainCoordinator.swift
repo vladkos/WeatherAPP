@@ -7,8 +7,11 @@
 
 import UIKit
 
-final class MainCoordinator: Coordinator {
-    
+protocol LocationsCoordinatorProtocol {
+    func toDetails(_ model: LocationModel)
+}
+
+final class MainCoordinator: Coordinator, LocationsCoordinatorProtocol {
     var navigationController: UINavigationController
     
     init(navigationController: UINavigationController) {
@@ -25,8 +28,8 @@ final class MainCoordinator: Coordinator {
 
     // MARK: - Navigate To Details Screen
 
-    func toDetails(_ model: CityModel) {
-        let weatherViewModel = WeatherViewModel(coordinator: self, cityModel: model)
+    func toDetails(_ model: LocationModel) {
+        let weatherViewModel = WeatherViewModel(coordinator: self, locationModel: model)
         let weatherViewController = WeatherViewController(viewModel: weatherViewModel)
         navigationController.pushViewController(weatherViewController, animated: true)
     }

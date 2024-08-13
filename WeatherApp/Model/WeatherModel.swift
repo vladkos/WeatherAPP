@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WeatherModel: Codable {
+struct WeatherModel: Decodable {
     let dailyForecasts: [DailyForecasts]
     
     var minTemperature: Int {
@@ -22,7 +22,7 @@ struct WeatherModel: Codable {
     }
     
     // MARK: - DailyForecasts
-    struct DailyForecasts: Codable {
+    struct DailyForecasts: Decodable {
         let temperature: Temperature
         
         private enum CodingKeys: String, CodingKey {
@@ -30,7 +30,7 @@ struct WeatherModel: Codable {
         }
         
         // MARK: - Temperature
-        struct Temperature: Codable {
+        struct Temperature: Decodable {
             let minimum: Minimum
             let maximum: Maximum
             
@@ -40,7 +40,7 @@ struct WeatherModel: Codable {
             }
             
             // MARK: - Minimum
-            struct Minimum: Codable {
+            struct Minimum: Decodable {
                 let value: Double
                 
                 private enum CodingKeys: String, CodingKey {
@@ -50,7 +50,7 @@ struct WeatherModel: Codable {
             
             
             // MARK: - Minimum
-            struct Maximum: Codable {
+            struct Maximum: Decodable {
                 let value: Double
                 
                 private enum CodingKeys: String, CodingKey {
