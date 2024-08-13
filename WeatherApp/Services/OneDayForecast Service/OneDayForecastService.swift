@@ -1,5 +1,5 @@
 //
-//  WeatherService.swift
+//  OneDayForecastService.swift
 //  WeatherApp
 //
 //  Created by Vlad Kostenko on 10/08/2024.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-final class WeatherService: WeatherServiceType {
+final class OneDayForecastService: OneDayForecastType {
     
     func getWeather(for cityKey: String, metric: Bool) -> AnyPublisher<WeatherModel, Error> {
         let baseUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/\(cityKey)"

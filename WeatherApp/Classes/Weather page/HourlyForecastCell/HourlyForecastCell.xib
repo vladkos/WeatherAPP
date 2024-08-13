@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="HourlyForecastCell" customModule="WeatherApp" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="144" height="123"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="144" height="123"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iox-Pi-dZZ">
+                        <rect key="frame" x="0.0" y="0.0" width="144" height="123"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="g1g-gb-hiq">
+                                <rect key="frame" x="31" y="31.000000000000004" width="82" height="61.333333333333343"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="SLs-8d-Ctl">
+                                        <rect key="frame" x="20.333333333333332" y="0.0" width="41.333333333333343" height="30.666666666666668"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="BuK-6j-Rtl">
+                                        <rect key="frame" x="20.333333333333332" y="30.666666666666664" width="41.333333333333343" height="30.666666666666664"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="g1g-gb-hiq" firstAttribute="centerX" secondItem="Iox-Pi-dZZ" secondAttribute="centerX" id="3OS-sK-qt4"/>
+                            <constraint firstItem="g1g-gb-hiq" firstAttribute="centerY" secondItem="Iox-Pi-dZZ" secondAttribute="centerY" id="l1v-Lt-s2Z"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstItem="Iox-Pi-dZZ" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="UCt-L7-6KG"/>
+                <constraint firstAttribute="trailing" secondItem="Iox-Pi-dZZ" secondAttribute="trailing" id="mne-RI-UUf"/>
+                <constraint firstAttribute="bottom" secondItem="Iox-Pi-dZZ" secondAttribute="bottom" id="tDS-AU-BLR"/>
+                <constraint firstItem="Iox-Pi-dZZ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="zCS-Hw-fK1"/>
+            </constraints>
+            <size key="customSize" width="144" height="123"/>
+            <connections>
+                <outlet property="hourLabel" destination="SLs-8d-Ctl" id="WYj-lm-Qet"/>
+                <outlet property="valueLabel" destination="BuK-6j-Rtl" id="YSD-9Y-yAH"/>
+            </connections>
+            <point key="canvasLocation" x="210.68702290076334" y="45.422535211267608"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

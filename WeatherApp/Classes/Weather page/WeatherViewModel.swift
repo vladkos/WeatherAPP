@@ -12,7 +12,8 @@ final class WeatherViewModel {
 
     // MARK: - Properties
 
-    private let weatherServiceType: WeatherServiceType
+    private let oneDayForecastType: OneDayForecastType
+    private let twelveHoursForecastType: TwelveHoursForecastType
     private let currentConditionsType: CurrentConditionsType
     private let coordinator: MainCoordinator
     private let cityModel: CityModel
@@ -27,14 +28,16 @@ final class WeatherViewModel {
     // MARK: - Initialization
 
     init(
-        weatherServiceType: WeatherServiceType = WeatherService(),
+        oneDayForecastType: OneDayForecastType = OneDayForecastService(),
+        twelveHoursForecastType: TwelveHoursForecastType = TwelveHoursForecastService(),
         currentConditionsType: CurrentConditionsType = CurrentConditionsService(),
         coordinator: MainCoordinator,
         cityModel: CityModel,
         setUserDefaults: @escaping (Any, String) -> () = UserDefaults.standard.set,
         getBoolValueFromUserDefaults: @escaping (String) -> (Bool) = UserDefaults.standard.bool
     ) {
-        self.weatherServiceType = weatherServiceType
+        self.oneDayForecastType = oneDayForecastType
+        self.twelveHoursForecastType = twelveHoursForecastType
         self.currentConditionsType = currentConditionsType
         self.coordinator = coordinator
         self.cityModel = cityModel
@@ -56,27 +59,29 @@ extension WeatherViewModel: ViewModelType {
         case outputCurrentTemperature(_ currentTemperature: String, color: UIColor)
         case handleCity(city: CityModel)
         case outputMetric(_ metric: Bool)
+        case outputTwelveHoursForecast(_ weather: [TwelveHoursForecastModel])
     }
 
     func transform(input: AnyPublisher<Input, Never>) -> AnyPublisher<Output, Never> {
         input.sink { [weak self] event in
             switch event {
             case .viewDidAppear:
-                self?.handleForecast()
+                self?.handleOneDayForecast()
+                self?.handleTwelveHoursForecast()
                 self?.handleCurrentConditions()
                 self?.handleCity()
                 self?.output.send(.outputMetric(self?.currentMetric() ?? false))
             case .metricDidChange(let metric):
                 self?.setIsMetric(metric)
                 self?.outputCurrentTemperature()
-                self?.handleForecast()
+                self?.handleOneDayForecast()
             }
         }.store(in: &cancellables)
         return output.eraseToAnyPublisher()
     }
     
-    private func handleForecast() {
-        weatherServiceType.getWeather(for: cityModel.cityKey, metric: currentMetric()).sink { completion in
+    private func handleOneDayForecast() {
+        oneDayForecastType.getWeather(for: cityModel.cityKey, metric: currentMetric()).sink { completion in
             if case .failure(let error) = completion {
                 print(error)
             }
@@ -85,6 +90,17 @@ extension WeatherViewModel: ViewModelType {
             let metric: CurrentConditionsModel.Temperature.Details.UnitType = self.currentMetric() ? .celsius : .fahrenheit
             let minMax = "\(weather.minTemperature)\(metric.rawValue) - \( weather.maxTemperature)\(metric.rawValue)"
             self.output.send(.outputMinMaxTemperature(minMax))
+        }.store(in: &cancellables)
+    }
+    
+    private func handleTwelveHoursForecast() {
+        twelveHoursForecastType.getWeather(for: cityModel.cityKey, metric: currentMetric()).sink { completion in
+            if case .failure(let error) = completion {
+                print(error)
+            }
+        } receiveValue: { [weak self] weather in
+            guard let self else { return }
+            self.output.send(.outputTwelveHoursForecast(weather))
         }.store(in: &cancellables)
     }
     

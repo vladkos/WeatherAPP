@@ -13,6 +13,7 @@ final class WeatherViewController: UIViewController {
     private let viewModel: WeatherViewModel
     private let output = PassthroughSubject<WeatherViewModel.Input, Never>()
     private var cancellables = Set<AnyCancellable>()
+    private var hourlyForecast: [TwelveHoursForecastModel]?
     
     private lazy var fOrCSwitch: UISwitch = {
         let s = UISwitch()
@@ -71,6 +72,15 @@ final class WeatherViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
+    private lazy var collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout.init())
+        collectionView.register(HourlyForecastCell.self, forCellWithReuseIdentifier: "HourlyForecastCell")
+        layout.scrollDirection = .vertical
+        collectionView.setCollectionViewLayout(layout, animated: true)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    private let layout = UICollectionViewFlowLayout()
     
     // MARK: - Initialization
     
@@ -112,6 +122,8 @@ final class WeatherViewController: UIViewController {
                     self?.locationLabel.text = city.localizedName
                 case .outputMetric(let metric):
                     self?.fOrCSwitch.isOn = metric
+                case .outputTwelveHoursForecast(let weather):
+                    self?.hourlyForecast = weather
                 }
             }.store(in: &cancellables)
     }
@@ -130,13 +142,34 @@ extension WeatherViewController {
         
         view.addSubview(weatherInfoStackView)
         view.addSubview(metricStackView)
+        view.addSubview(collectionView)
+        collectionView.dataSource = self
         
         NSLayoutConstraint.activate(
             [weatherInfoStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
              weatherInfoStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
              metricStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-             metricStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+             metricStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+             collectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+             collectionView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
+             collectionView.topAnchor.constraint(equalTo: weatherInfoStackView.bottomAnchor),
             ])
     }
 }
 
+extension WeatherViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        hourlyForecast?.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HourlyForecastCell", for: indexPath) as! HourlyForecastCell
+        if let model = hourlyForecast?[indexPath.item] {
+            cell.configure(
+                hour: model.hourValue.description, 
+                value: model.temperature.value.description + model.temperature.unit
+            )
+        }
+        return cell
+    }
+}
