@@ -103,8 +103,9 @@ final class WeatherViewController: UIViewController {
                 switch event {
                 case .outputMinMaxTemperature(let minMax):
                     self?.minMaxTemperatureLabel.text = minMax
-                case .outputCurrentTemperature(let currentTemperature):
+                case .outputCurrentTemperature(let currentTemperature, let color):
                     self?.currentTemperatureLabel.text = currentTemperature
+                    self?.currentTemperatureLabel.textColor = color
                 case .outputWeatherDescription(let description):
                     self?.temperatureDescriptionLabel.text = description
                 case .handleCity(let city):

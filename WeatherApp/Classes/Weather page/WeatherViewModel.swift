@@ -5,7 +5,7 @@
 //  Created by Vlad Kostenko on 09/08/2024.
 //
 
-import Foundation
+import UIKit
 import Combine
 
 final class WeatherViewModel {
@@ -53,7 +53,7 @@ extension WeatherViewModel: ViewModelType {
     enum Output {
         case outputMinMaxTemperature(_ minMax: String)
         case outputWeatherDescription(_ description: String)
-        case outputCurrentTemperature(_ currentTemperature: String)
+        case outputCurrentTemperature(_ currentTemperature: String, color: UIColor)
         case handleCity(city: CityModel)
         case outputMetric(_ metric: Bool)
     }
@@ -106,7 +106,19 @@ extension WeatherViewModel: ViewModelType {
     
     private func outputCurrentTemperature() {
         guard let currentConditions else { return }
-        output.send(.outputCurrentTemperature(currentConditions.currentTemperature(metric: currentMetric())))
+        let color: UIColor
+        switch currentConditions.currentTemperatureValue(metric: currentMetric()) {
+        case let x where x < 10:
+            color = .blue
+        case let x where x >= 10 && x <= 20:
+            color = .black
+        default:
+            color = .red
+        }
+        output.send(.outputCurrentTemperature(
+            currentConditions.currentTemperature(metric: currentMetric()),
+            color: color
+        ))
     }
     
     private func handleCity() {
