@@ -9,5 +9,5 @@ import Foundation
 import Combine
 
 protocol WeatherServiceType {
-    func getWeather(for cityKey: String) -> AnyPublisher<WeatherModel, Error>
+    func getWeather(for cityKey: String, metric: Bool) -> AnyPublisher<WeatherModel, Error>
 }

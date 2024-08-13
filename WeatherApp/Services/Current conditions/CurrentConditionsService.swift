@@ -1,21 +1,19 @@
 //
-//  WeatherService.swift
+//  CurrentConditionsService.swift
 //  WeatherApp
 //
-//  Created by Vlad Kostenko on 10/08/2024.
+//  Created by Vlad Kostenko on 12/08/2024.
 //
 
 import Foundation
 import Combine
 
-final class WeatherService: WeatherServiceType {
-    
-    func getWeather(for cityKey: String, metric: Bool) -> AnyPublisher<WeatherModel, Error> {
-        let baseUrl = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/\(cityKey)"
+final class CurrentConditionsService: CurrentConditionsType {
+    func getCurrentWeather(for cityKey: String) -> AnyPublisher<[CurrentConditionsModel], any Error> {
+        let baseUrl = "http://dataservice.accuweather.com/currentconditions/v1/\(cityKey)"
         let queryItems = [
             URLQueryItem(name: "apikey", value: "muSApLyJoXuvUvLTEDSPmaCbYCawJndA"),
-            URLQueryItem(name: "details", value: "true"),
-            URLQueryItem(name: "metric", value: metric.description)
+            URLQueryItem(name: "details", value: "false")
         ]
         var urlComps = URLComponents(string: baseUrl)!
         urlComps.queryItems = queryItems
@@ -24,7 +22,7 @@ final class WeatherService: WeatherServiceType {
             .catch { error in
                 return Fail(error: error).eraseToAnyPublisher()
             }.map({ $0.data })
-            .decode(type: WeatherModel.self, decoder: JSONDecoder())
+            .decode(type: [CurrentConditionsModel].self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
     }
 }
