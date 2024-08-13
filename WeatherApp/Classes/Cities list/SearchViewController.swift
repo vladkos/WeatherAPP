@@ -65,6 +65,7 @@ extension SearchViewController {
         navigationController?.title = Constants.title
         navigationItem.searchController = searchController
         searchController.searchResultsUpdater = self
+        searchController.searchBar.searchTextField.delegate = self
         
         title = Constants.title
         tableView.delegate = self
@@ -127,5 +128,25 @@ extension SearchViewController {
     enum Constants {
         static let title = "Weather"
         static let rowHeigh: CGFloat = 50.0
+    }
+}
+
+extension SearchViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard let text = textField.text,
+              let textRange = Range(range, in: text) else { return false }
+        let updatedText = text.replacingCharacters(in: textRange, with: string)
+
+        return updatedText.isValidSearch
+    }
+}
+
+extension String {
+    var isValidSearch: Bool {
+        let characterset = CharacterSet(charactersIn: "AaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlŁłMmNnŃńOoÓóPpRrSsŚśTtUuWwYyZzŹźŻż' ")
+        if self.rangeOfCharacter(from: characterset.inverted) != nil {
+            return false
+        }
+        return true
     }
 }
