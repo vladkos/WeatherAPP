@@ -23,14 +23,14 @@ final class SearchViewModel: ViewModelType, SearchViewModelProtocol {
         case fetchLocationsDidSucceed(locations: [LocationModel])
     }
     
-    private let coordinator: MainCoordinator
+    private let coordinator: Coordinator & LocationsCoordinatorProtocol
     private let locationsServiceType: LocationsServiceType
     private let output: PassthroughSubject<Output, Never> = .init()
     private var cancellables = Set<AnyCancellable>()
     
     init(
         locationsServiceType: LocationsServiceType = LocationsService(),
-        coordinator: MainCoordinator
+        coordinator: Coordinator & LocationsCoordinatorProtocol
     ) {
         self.locationsServiceType = locationsServiceType
         self.coordinator = coordinator
