@@ -15,13 +15,13 @@ final class WeatherViewModel {
     private let oneDayForecastType: OneDayForecastType
     private let twelveHoursForecastType: TwelveHoursForecastType
     private let currentConditionsType: CurrentConditionsType
-    private let coordinator: MainCoordinator
+    private let coordinator: Coordinator
     private let locationModel: LocationModel
     private let output: PassthroughSubject<Output, Never> = .init()
-    private let setUserDefaults: (Any, String) -> ()
+    private let setUserDefaults: (Bool, String) -> ()
     private let getBoolValueFromUserDefaults: (String) -> (Bool)
     private var cancellables = Set<AnyCancellable>()
-    private let isMetricUserDefaultsKey = "isMetric"
+    private let isMetricUserDefaultsKey: String
     
     private var currentConditions: CurrentConditionsModel?
     
@@ -31,9 +31,10 @@ final class WeatherViewModel {
         oneDayForecastType: OneDayForecastType = OneDayForecastService(),
         twelveHoursForecastType: TwelveHoursForecastType = TwelveHoursForecastService(),
         currentConditionsType: CurrentConditionsType = CurrentConditionsService(),
-        coordinator: MainCoordinator,
+        coordinator: Coordinator,
         locationModel: LocationModel,
-        setUserDefaults: @escaping (Any, String) -> () = UserDefaults.standard.set,
+        isMetricUserDefaultsKey: String = "isMetric",
+        setUserDefaults: @escaping (Bool, String) -> () = UserDefaults.standard.set,
         getBoolValueFromUserDefaults: @escaping (String) -> (Bool) = UserDefaults.standard.bool
     ) {
         self.oneDayForecastType = oneDayForecastType
@@ -41,6 +42,7 @@ final class WeatherViewModel {
         self.currentConditionsType = currentConditionsType
         self.coordinator = coordinator
         self.locationModel = locationModel
+        self.isMetricUserDefaultsKey = isMetricUserDefaultsKey
         self.setUserDefaults = setUserDefaults
         self.getBoolValueFromUserDefaults = getBoolValueFromUserDefaults
     }
@@ -81,13 +83,14 @@ extension WeatherViewModel: ViewModelType {
     }
     
     private func handleOneDayForecast() {
-        oneDayForecastType.getWeather(for: locationModel.cityKey, metric: currentMetric()).sink { completion in
+        let currentMetric = currentMetric()
+        oneDayForecastType.getWeather(for: locationModel.cityKey, metric: currentMetric).sink { completion in
             if case .failure(let error) = completion {
                 print(error)
             }
         } receiveValue: { [weak self] weather in
             guard let self else { return }
-            let metric: CurrentConditionsModel.Temperature.Details.UnitType = self.currentMetric() ? .celsius : .fahrenheit
+            let metric: CurrentConditionsModel.Temperature.Details.UnitType = currentMetric ? .celsius : .fahrenheit
             let minMax = "\(weather.minTemperature)\(metric.value) - \( weather.maxTemperature)\(metric.value)"
             self.output.send(.outputMinMaxTemperature(minMax))
         }.store(in: &cancellables)
